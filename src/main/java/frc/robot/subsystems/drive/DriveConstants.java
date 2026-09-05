@@ -29,10 +29,10 @@ public class DriveConstants {
       };
 
   // Zeroed rotation values for each module, see setup instructions
-  public static final Rotation2d frontLeftZeroRotation = new Rotation2d(0.0);
-  public static final Rotation2d frontRightZeroRotation = new Rotation2d(0.0);
-  public static final Rotation2d backLeftZeroRotation = new Rotation2d(0.0);
-  public static final Rotation2d backRightZeroRotation = new Rotation2d(0.0);
+  public static final Rotation2d frontLeftZeroRotation = new Rotation2d().fromDegrees(-109.5);
+  public static final Rotation2d frontRightZeroRotation = new Rotation2d().fromDegrees(57.4);
+  public static final Rotation2d backLeftZeroRotation = new Rotation2d().fromDegrees(106.1);
+  public static final Rotation2d backRightZeroRotation = new Rotation2d().fromDegrees(-30.4);
 
   // Device CAN IDs
   public static final int pigeonCanId = 14;
@@ -70,7 +70,7 @@ public class DriveConstants {
 
   // Drive PID configuration
   public static final double driveKp = 0.18;
-  public static final double driveKd = 0.0;
+  public static final double driveKd = 0.02;
   public static final double driveKs = 1.11607;
   public static final double driveKv = 2.9583;
   public static final double driveSimP = 0.05;
@@ -86,8 +86,10 @@ public class DriveConstants {
 
   // Turn encoder configuration
   public static final boolean turnEncoderInverted = true;
-  public static final double turnEncoderPositionFactor = 2 * Math.PI; // Rotations -> Radians
-  public static final double turnEncoderVelocityFactor = (2 * Math.PI) / 60.0; // RPM -> Rad/Sec
+  public static final double turnEncoderPositionFactor =
+      2 * Math.PI / turnMotorReduction; // Rotations -> Radians
+  public static final double turnEncoderVelocityFactor =
+      ((2 * Math.PI) / 60.0) / turnMotorReduction; // RPM -> Rad/Sec
 
   // Turn PID configuration
   public static final double turnKp = 0.45;
