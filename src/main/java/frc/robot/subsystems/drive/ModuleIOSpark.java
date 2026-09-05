@@ -31,6 +31,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
+import com.ctre.phoenix6.hardware.CANcoder;
 
 /**
  * Module IO implementation for Spark Flex drive motor controller, Spark Max turn motor controller,
@@ -44,6 +45,7 @@ public class ModuleIOSpark implements ModuleIO {
   private final SparkBase turnSpark;
   private final RelativeEncoder driveEncoder;
   private final AbsoluteEncoder turnEncoder;
+  private final Integer encoderId;
 
   // Closed loop controllers
   private final SparkClosedLoopController driveController;
@@ -89,6 +91,14 @@ public class ModuleIOSpark implements ModuleIO {
               default -> 0;
             },
             MotorType.kBrushless);
+    encoderId = 
+            switch(module) {
+                case 0 -> frontLeftAbsoluteId;
+                case 1 -> frontRightAbsoluteId;
+                case 2 -> backLeftAbsoluteId;
+                case 3 -> backRightAbsoluteId;
+                default -> 0;
+            };
     driveEncoder = driveSpark.getEncoder();
     turnEncoder = turnSpark.getAbsoluteEncoder();
     driveController = driveSpark.getClosedLoopController();
