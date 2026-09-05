@@ -29,10 +29,10 @@ public class DriveConstants {
       };
 
   // Zeroed rotation values for each module, see setup instructions
-  public static final Rotation2d frontLeftZeroRotation = new Rotation2d().fromDegrees(-109.5);
-  public static final Rotation2d frontRightZeroRotation = new Rotation2d().fromDegrees(57.4);
-  public static final Rotation2d backLeftZeroRotation = new Rotation2d().fromDegrees(106.1);
-  public static final Rotation2d backRightZeroRotation = new Rotation2d().fromDegrees(-30.4);
+  public static final Rotation2d frontLeftZeroRotation = new Rotation2d().fromDegrees(-17.60);
+  public static final Rotation2d frontRightZeroRotation = new Rotation2d().fromDegrees(9.2);
+  public static final Rotation2d backLeftZeroRotation = new Rotation2d().fromDegrees(17.14);
+  public static final Rotation2d backRightZeroRotation = new Rotation2d().fromDegrees(-4.98);
 
   // Device CAN IDs
   public static final int pigeonCanId = 14;
@@ -55,7 +55,7 @@ public class DriveConstants {
 
   // Drive motor configuration
   public static final int driveMotorCurrentLimit = 50;
-  public static final double wheelRadiusMeters = Units.inchesToMeters(1.5);
+  public static final double wheelRadiusMeters = Units.inchesToMeters(1.9);
   public static final double driveMotorReduction = 5.2734375; // MAXSwerve with 14 pinion teeth
   // and 22 spur teeth
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);
@@ -69,8 +69,8 @@ public class DriveConstants {
   // Wheel Rad/Sec
 
   // Drive PID configuration
-  public static final double driveKp = 0.18;
-  public static final double driveKd = 0.02;
+  public static final double driveKp = 0.01;
+  public static final double driveKd = 0.00;
   public static final double driveKs = 1.11607;
   public static final double driveKv = 2.9583;
   public static final double driveSimP = 0.05;
@@ -81,8 +81,8 @@ public class DriveConstants {
   // Turn motor configuration
   public static final boolean turnInverted = false;
   public static final int turnMotorCurrentLimit = 20;
-  public static final double turnMotorReduction = 26.0;
-  public static final DCMotor turnGearbox = DCMotor.getNeo550(1);
+  public static final double turnMotorReduction = 26.0; // 26.0;
+  public static final DCMotor turnGearbox = DCMotor.getNeoVortex(1);
 
   // Turn encoder configuration
   public static final boolean turnEncoderInverted = true;
@@ -102,7 +102,7 @@ public class DriveConstants {
   // PathPlanner configuration
   public static final double robotMassKg = 61.0;
   public static final double robotMOI = 6.883;
-  public static final double wheelCOF = 1.2;
+  public static final double wheelCOF = 1.5;
   public static final RobotConfig ppConfig =
       new RobotConfig(
           robotMassKg,
