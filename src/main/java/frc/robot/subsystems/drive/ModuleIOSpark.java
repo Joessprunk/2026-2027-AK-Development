@@ -10,6 +10,7 @@ package frc.robot.subsystems.drive;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 import static frc.robot.util.SparkUtil.*;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -94,7 +95,6 @@ public class ModuleIOSpark implements ModuleIO {
               default -> 0;
             },
             MotorType.kBrushless);
-<<<<<<< Updated upstream
     absoluteEncoder =
         new CANcoder(
             switch(module) {
@@ -105,16 +105,6 @@ public class ModuleIOSpark implements ModuleIO {
                 default -> 0;
             }
             );  
-=======
-    encoderId =
-        switch (module) {
-          case 0 -> frontLeftAbsoluteId;
-          case 1 -> frontRightAbsoluteId;
-          case 2 -> backLeftAbsoluteId;
-          case 3 -> backRightAbsoluteId;
-          default -> 0;
-        };
->>>>>>> Stashed changes
     driveEncoder = driveSpark.getEncoder();
     turnEncoder = turnSpark.getEncoder();
     driveController = driveSpark.getClosedLoopController();
@@ -155,11 +145,7 @@ public class ModuleIOSpark implements ModuleIO {
     tryUntilOk(driveSpark, 5, () -> driveEncoder.setPosition(0.0));
 
     // Configure turn motor
-<<<<<<< Updated upstream
-   var turnConfig = new SparkMaxConfig();
-=======
     var turnConfig = new SparkFlexConfig();
->>>>>>> Stashed changes
     turnConfig
         .inverted(turnInverted)
         .idleMode(IdleMode.kBrake)
