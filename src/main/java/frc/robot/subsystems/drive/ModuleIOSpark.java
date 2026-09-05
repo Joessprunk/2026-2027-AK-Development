@@ -33,7 +33,6 @@ import edu.wpi.first.math.util.Units;
 
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
-import com.ctre.phoenix6.hardware.CANcoder;
 
 /**
  * Module IO implementation for Spark Flex drive motor controller, Spark Max turn motor controller,
@@ -86,7 +85,7 @@ public class ModuleIOSpark implements ModuleIO {
             },
             MotorType.kBrushless);
     turnSpark =
-        new SparkMax(
+        new SparkFlex(
             switch (module) {
               case 0 -> frontLeftTurnCanId;
               case 1 -> frontRightTurnCanId;
@@ -95,6 +94,7 @@ public class ModuleIOSpark implements ModuleIO {
               default -> 0;
             },
             MotorType.kBrushless);
+<<<<<<< Updated upstream
     absoluteEncoder =
         new CANcoder(
             switch(module) {
@@ -105,6 +105,16 @@ public class ModuleIOSpark implements ModuleIO {
                 default -> 0;
             }
             );  
+=======
+    encoderId =
+        switch (module) {
+          case 0 -> frontLeftAbsoluteId;
+          case 1 -> frontRightAbsoluteId;
+          case 2 -> backLeftAbsoluteId;
+          case 3 -> backRightAbsoluteId;
+          default -> 0;
+        };
+>>>>>>> Stashed changes
     driveEncoder = driveSpark.getEncoder();
     turnEncoder = turnSpark.getEncoder();
     driveController = driveSpark.getClosedLoopController();
@@ -145,7 +155,11 @@ public class ModuleIOSpark implements ModuleIO {
     tryUntilOk(driveSpark, 5, () -> driveEncoder.setPosition(0.0));
 
     // Configure turn motor
+<<<<<<< Updated upstream
    var turnConfig = new SparkMaxConfig();
+=======
+    var turnConfig = new SparkFlexConfig();
+>>>>>>> Stashed changes
     turnConfig
         .inverted(turnInverted)
         .idleMode(IdleMode.kBrake)
