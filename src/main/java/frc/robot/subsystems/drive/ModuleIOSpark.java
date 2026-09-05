@@ -29,6 +29,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -44,8 +46,10 @@ public class ModuleIOSpark implements ModuleIO {
   private final SparkBase driveSpark;
   private final SparkBase turnSpark;
   private final RelativeEncoder driveEncoder;
-  private final AbsoluteEncoder turnEncoder;
-  private final Integer encoderId;
+  private final RelativeEncoder turnEncoder;
+  private final CANcoder absoluteEncoder;
+  private final double absolutePositionRad;
+
 
   // Closed loop controllers
   private final SparkClosedLoopController driveController;
@@ -91,18 +95,21 @@ public class ModuleIOSpark implements ModuleIO {
               default -> 0;
             },
             MotorType.kBrushless);
-    encoderId = 
+    absoluteEncoder =
+        new CANcoder(
             switch(module) {
                 case 0 -> frontLeftAbsoluteId;
                 case 1 -> frontRightAbsoluteId;
                 case 2 -> backLeftAbsoluteId;
                 case 3 -> backRightAbsoluteId;
                 default -> 0;
-            };
+            }
+            );  
     driveEncoder = driveSpark.getEncoder();
-    turnEncoder = turnSpark.getAbsoluteEncoder();
+    turnEncoder = turnSpark.getEncoder();
     driveController = driveSpark.getClosedLoopController();
     turnController = turnSpark.getClosedLoopController();
+    absolutePositionRad = Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition().getValueAsDouble());
 
     // Configure drive motor
     var driveConfig = new SparkFlexConfig();
@@ -138,47 +145,59 @@ public class ModuleIOSpark implements ModuleIO {
     tryUntilOk(driveSpark, 5, () -> driveEncoder.setPosition(0.0));
 
     // Configure turn motor
-    var turnConfig = new SparkMaxConfig();
+   var turnConfig = new SparkMaxConfig();
     turnConfig
         .inverted(turnInverted)
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(turnMotorCurrentLimit)
         .voltageCompensation(12.0);
+
+    // Use .encoder instead of .absoluteEncoder, and uvwAverageDepth instead of averageDepth
     turnConfig
-        .absoluteEncoder
-        .inverted(turnEncoderInverted)
+        .encoder
         .positionConversionFactor(turnEncoderPositionFactor)
         .velocityConversionFactor(turnEncoderVelocityFactor)
-        .averageDepth(2);
+        .uvwAverageDepth(2);
+
+    // Switch feedbackSensor to kPrimaryEncoder
     turnConfig
         .closedLoop
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .positionWrappingEnabled(true)
         .positionWrappingInputRange(turnPIDMinInput, turnPIDMaxInput)
         .pid(turnKp, 0.0, turnKd);
+
+    // Swap absoluteEncoder signals to primaryEncoder signals
     turnConfig
         .signals
-        .absoluteEncoderPositionAlwaysOn(true)
-        .absoluteEncoderPositionPeriodMs((int) (1000.0 / odometryFrequency))
-        .absoluteEncoderVelocityAlwaysOn(true)
-        .absoluteEncoderVelocityPeriodMs(20)
+        .primaryEncoderPositionAlwaysOn(true)
+        .primaryEncoderPositionPeriodMs((int) (1000.0 / odometryFrequency))
+        .primaryEncoderVelocityAlwaysOn(true)
+        .primaryEncoderVelocityPeriodMs(20)
         .appliedOutputPeriodMs(20)
         .busVoltagePeriodMs(20)
         .outputCurrentPeriodMs(20);
+
     tryUntilOk(
         turnSpark,
         5,
         () ->
             turnSpark.configure(
                 turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    tryUntilOk(
+        turnSpark,
+         5,
+        () -> 
+            turnEncoder.setPosition(
+                absolutePositionRad));
 
-    // Create odometry queues
-    timestampQueue = SparkOdometryThread.getInstance().makeTimestampQueue();
-    drivePositionQueue =
-        SparkOdometryThread.getInstance().registerSignal(driveSpark, driveEncoder::getPosition);
-    turnPositionQueue =
-        SparkOdometryThread.getInstance().registerSignal(turnSpark, turnEncoder::getPosition);
-  }
+        // Create odometry queues
+        timestampQueue = SparkOdometryThread.getInstance().makeTimestampQueue();
+        drivePositionQueue =
+            SparkOdometryThread.getInstance().registerSignal(driveSpark, driveEncoder::getPosition);
+        turnPositionQueue =
+            SparkOdometryThread.getInstance().registerSignal(turnSpark, turnEncoder::getPosition);
+    }
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
